@@ -4,6 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Magnemite — Verified Campus Hardware Marketplace</title>
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init('valXWJ3aOpywtmvqL');</script> <!-- replace with your Public Key from emailjs.com → Account -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
@@ -30,176 +33,356 @@
   }
 
   html { scroll-behavior: smooth; }
-  body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
 
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE OVERLAY */
   body::before {
-    content: ''; position: fixed; inset: 0;
+    content: '';
+    position: fixed; inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
     pointer-events: none; z-index: 999; opacity: 0.4;
   }
 
+  /* ── NAV ── */
   nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 18px 6vw; background: rgba(8,11,16,0.75);
-    backdrop-filter: blur(18px); border-bottom: 1px solid var(--border);
+    padding: 18px 6vw;
+    background: rgba(8,11,16,0.75);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
   }
-  .nav-logo { font-family: var(--font-head); font-weight: 800; font-size: 1.35rem; letter-spacing: -0.02em; color: var(--text); text-decoration: none; }
+  .nav-logo {
+    font-family: var(--font-head);
+    font-weight: 800; font-size: 1.35rem;
+    letter-spacing: -0.02em; color: var(--text);
+    text-decoration: none;
+  }
   .nav-logo span { color: var(--green); }
   .nav-links { display: flex; gap: 32px; list-style: none; }
   .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: color .2s; }
   .nav-links a:hover { color: var(--green); }
-  .nav-cta { background: var(--green); color: #040608; border: none; border-radius: 8px; padding: 9px 20px; font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: var(--font-body); transition: box-shadow .2s, transform .15s; }
+  .nav-cta {
+    background: var(--green); color: #040608;
+    border: none; border-radius: 8px;
+    padding: 9px 20px; font-size: 0.85rem; font-weight: 700;
+    cursor: pointer; font-family: var(--font-body);
+    letter-spacing: 0.01em; transition: box-shadow .2s, transform .15s;
+  }
   .nav-cta:hover { box-shadow: 0 0 22px var(--green-glow); transform: translateY(-1px); }
   .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
   .hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; }
 
-  #hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 6vw 80px; position: relative; overflow: hidden; }
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 120px 6vw 80px;
+    position: relative; overflow: hidden;
+  }
   .hero-grid-bg {
     position: absolute; inset: 0;
-    background-image: linear-gradient(rgba(57,255,120,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(57,255,120,0.04) 1px, transparent 1px);
+    background-image:
+      linear-gradient(rgba(57,255,120,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(57,255,120,0.04) 1px, transparent 1px);
     background-size: 60px 60px;
     mask-image: radial-gradient(ellipse 70% 80% at 50% 40%, black 30%, transparent 100%);
   }
-  .hero-glow { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(ellipse, rgba(57,255,120,0.10) 0%, transparent 70%); pointer-events: none; }
+  .hero-glow {
+    position: absolute; top: 10%; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, rgba(57,255,120,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
   .hero-inner { position: relative; z-index: 1; max-width: 760px; }
-  .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; background: var(--green-dim); border: 1px solid var(--border-bright); border-radius: 100px; padding: 6px 14px; font-family: var(--font-mono); font-size: 0.72rem; color: var(--green); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 28px; animation: fadeUp 0.7s ease both; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--green-dim); border: 1px solid var(--border-bright);
+    border-radius: 100px; padding: 6px 14px;
+    font-family: var(--font-mono); font-size: 0.72rem; color: var(--green);
+    letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 28px;
+    animation: fadeUp 0.7s ease both;
+  }
   .hero-eyebrow::before { content: '●'; font-size: 0.55rem; animation: pulse 2s ease-in-out infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-  .hero h1 { font-family: var(--font-head); font-size: clamp(2.6rem, 6vw, 4.8rem); font-weight: 800; line-height: 1.06; letter-spacing: -0.03em; animation: fadeUp 0.8s 0.1s ease both; }
+
+  .hero h1 {
+    font-family: var(--font-head);
+    font-size: clamp(2.6rem, 6vw, 4.8rem);
+    font-weight: 800; line-height: 1.06;
+    letter-spacing: -0.03em;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
   .hero h1 .accent { color: var(--green); position: relative; display: inline-block; }
-  .hero h1 .accent::after { content: ''; position: absolute; bottom: -4px; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--green), transparent); border-radius: 2px; }
-  .hero-sub { margin-top: 22px; font-size: 1.1rem; font-weight: 300; color: var(--text-muted); max-width: 540px; line-height: 1.75; animation: fadeUp 0.8s 0.2s ease both; }
+  .hero h1 .accent::after {
+    content: '';
+    position: absolute; bottom: -4px; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--green), transparent);
+    border-radius: 2px;
+  }
+  .hero-sub {
+    margin-top: 22px; font-size: 1.1rem; font-weight: 300;
+    color: var(--text-muted); max-width: 540px; line-height: 1.75;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
   .hero-sub strong { color: var(--text); font-weight: 500; }
-  .hero-btns { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 42px; animation: fadeUp 0.8s 0.3s ease both; }
-  .btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--green); color: #040608; border: none; border-radius: 10px; padding: 14px 28px; font-size: 0.95rem; font-weight: 700; cursor: pointer; font-family: var(--font-body); transition: box-shadow .2s, transform .15s; text-decoration: none; }
+  .hero-btns {
+    display: flex; flex-wrap: wrap; gap: 14px; margin-top: 42px;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--green); color: #040608;
+    border: none; border-radius: 10px;
+    padding: 14px 28px; font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; font-family: var(--font-body);
+    transition: box-shadow .2s, transform .15s;
+    text-decoration: none;
+  }
   .btn-primary:hover { box-shadow: 0 0 32px var(--green-glow); transform: translateY(-2px); }
-  .btn-secondary { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--text); border: 1px solid var(--border-bright); border-radius: 10px; padding: 14px 28px; font-size: 0.95rem; font-weight: 500; cursor: pointer; font-family: var(--font-body); transition: background .2s, border-color .2s, transform .15s; text-decoration: none; }
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border-bright); border-radius: 10px;
+    padding: 14px 28px; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; font-family: var(--font-body);
+    transition: background .2s, border-color .2s, transform .15s;
+    text-decoration: none;
+  }
   .btn-secondary:hover { background: var(--green-dim); border-color: var(--green); transform: translateY(-2px); }
-  .hero-stats { display: flex; gap: 40px; margin-top: 64px; flex-wrap: wrap; animation: fadeUp 0.8s 0.4s ease both; }
-  .hero-stat-num { font-family: var(--font-head); font-size: 1.9rem; font-weight: 800; color: var(--green); line-height: 1; }
+  .hero-stats {
+    display: flex; gap: 40px; margin-top: 64px; flex-wrap: wrap;
+    animation: fadeUp 0.8s 0.4s ease both;
+  }
+  .hero-stat-item { }
+  .hero-stat-num {
+    font-family: var(--font-head); font-size: 1.9rem; font-weight: 800;
+    color: var(--green); line-height: 1;
+  }
   .hero-stat-label { font-size: 0.78rem; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.04em; }
   @keyframes fadeUp { from { opacity:0; transform:translateY(24px) } to { opacity:1; transform:none } }
 
+  /* ── SECTION COMMON ── */
   section { padding: 100px 6vw; }
-  .section-tag { font-family: var(--font-mono); font-size: 0.7rem; color: var(--green); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px; }
-  .section-h2 { font-family: var(--font-head); font-size: clamp(1.9rem, 3.5vw, 2.8rem); font-weight: 800; letter-spacing: -0.025em; line-height: 1.15; }
+  .section-tag {
+    font-family: var(--font-mono); font-size: 0.7rem; color: var(--green);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px;
+  }
+  .section-h2 {
+    font-family: var(--font-head); font-size: clamp(1.9rem, 3.5vw, 2.8rem);
+    font-weight: 800; letter-spacing: -0.025em; line-height: 1.15;
+  }
   .section-sub { color: var(--text-muted); margin-top: 14px; max-width: 520px; font-weight: 300; line-height: 1.75; }
   .section-header { margin-bottom: 64px; }
 
-  .audience-label { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 20px; }
-  .audience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .audience-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 40px 36px; cursor: pointer; transition: transform .22s, border-color .22s, box-shadow .22s; position: relative; overflow: hidden; }
-  .audience-card::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity .25s; }
-  .audience-card:first-child::before { background: linear-gradient(135deg, rgba(57,255,120,0.07) 0%, transparent 60%); }
-  .audience-card:last-child::before  { background: linear-gradient(135deg, rgba(61,224,255,0.07) 0%, transparent 60%); }
-  .audience-card:hover { transform: translateY(-6px); }
-  .audience-card:first-child:hover { border-color: rgba(57,255,120,0.35); box-shadow: 0 24px 60px rgba(0,0,0,0.35); }
-  .audience-card:last-child:hover  { border-color: rgba(61,224,255,0.35); box-shadow: 0 24px 60px rgba(0,0,0,0.35); }
-  .audience-card:hover::before { opacity: 1; }
-  .audience-icon-wrap { width: 58px; height: 58px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; margin-bottom: 20px; position: relative; z-index: 1; }
-  .student-icon { background: rgba(57,255,120,0.1); border: 1px solid rgba(57,255,120,0.25); }
-  .company-icon { background: rgba(61,224,255,0.1); border: 1px solid rgba(61,224,255,0.25); }
-  .audience-tag { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; position: relative; z-index: 1; }
-  .audience-card:first-child .audience-tag { color: var(--green); }
-  .audience-card:last-child  .audience-tag { color: var(--blue); }
-  .audience-title { font-family: var(--font-head); font-size: 1.55rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 14px; position: relative; z-index: 1; }
-  .audience-body { color: var(--text-muted); font-size: 0.9rem; line-height: 1.72; font-weight: 300; margin-bottom: 22px; position: relative; z-index: 1; }
-  .audience-body strong { color: var(--text); font-weight: 500; }
-  .audience-perks { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 30px; position: relative; z-index: 1; }
-  .audience-perks li { font-size: 0.82rem; color: var(--text-muted); font-weight: 300; }
-  .audience-cta { display: inline-flex; align-items: center; border-radius: 10px; padding: 12px 22px; font-size: 0.88rem; font-weight: 700; position: relative; z-index: 1; transition: box-shadow .2s; }
-  .student-cta { background: var(--green); color: #040608; }
-  .company-cta { background: rgba(61,224,255,0.12); color: var(--blue); border: 1px solid rgba(61,224,255,0.3); }
-
+  /* ── HOW IT WORKS ── */
   #how { background: linear-gradient(180deg, var(--bg) 0%, #090d12 100%); }
   .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; position: relative; }
-  .steps::before { content: ''; position: absolute; top: 52px; left: calc(16.66% + 20px); right: calc(16.66% + 20px); height: 1px; background: linear-gradient(90deg, transparent, var(--border-bright), var(--border-bright), transparent); }
-  .step-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 40px 32px; transition: border-color .25s, transform .2s; position: relative; overflow: hidden; }
-  .step-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--green-dim) 0%, transparent 60%); opacity: 0; transition: opacity .25s; }
+  .steps::before {
+    content: '';
+    position: absolute; top: 52px; left: calc(16.66% + 20px); right: calc(16.66% + 20px); height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-bright), var(--border-bright), transparent);
+  }
+  .step-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 40px 32px;
+    transition: border-color .25s, transform .2s;
+    position: relative; overflow: hidden;
+  }
+  .step-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--green-dim) 0%, transparent 60%);
+    opacity: 0; transition: opacity .25s;
+  }
   .step-card:hover { border-color: var(--border-bright); transform: translateY(-4px); }
   .step-card:hover::before { opacity: 1; }
-  .step-num { font-family: var(--font-mono); font-size: 0.72rem; color: var(--green); letter-spacing: 0.1em; margin-bottom: 20px; }
-  .step-icon { width: 52px; height: 52px; border-radius: 12px; background: var(--green-dim); border: 1px solid var(--border-bright); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 24px; }
+  .step-num {
+    font-family: var(--font-mono); font-size: 0.72rem; color: var(--green);
+    letter-spacing: 0.1em; margin-bottom: 20px;
+  }
+  .step-icon {
+    width: 52px; height: 52px; border-radius: 12px;
+    background: var(--green-dim); border: 1px solid var(--border-bright);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; margin-bottom: 24px;
+  }
   .step-title { font-family: var(--font-head); font-size: 1.3rem; font-weight: 700; margin-bottom: 12px; }
   .step-body { color: var(--text-muted); font-size: 0.92rem; line-height: 1.7; font-weight: 300; }
   .step-body strong { color: var(--green); font-weight: 500; }
 
+  /* ── MARKETPLACE ── */
   #marketplace { background: #090d12; }
   .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 20px; }
-  .product-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: border-color .25s, transform .2s, box-shadow .25s; cursor: pointer; }
-  .product-card:hover { border-color: rgba(57,255,120,0.3); transform: translateY(-5px); box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
-  .product-img { height: 160px; background: #0d1520; display: flex; align-items: center; justify-content: center; font-size: 3.2rem; position: relative; border-bottom: 1px solid var(--border); }
-  .badge-verified { position: absolute; top: 12px; left: 12px; background: rgba(57,255,120,0.15); border: 1px solid rgba(57,255,120,0.4); color: var(--green); font-family: var(--font-mono); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em; padding: 4px 10px; border-radius: 100px; text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
+  .product-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+    transition: border-color .25s, transform .2s, box-shadow .25s;
+    cursor: pointer;
+  }
+  .product-card:hover {
+    border-color: rgba(57,255,120,0.3);
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(57,255,120,0.08);
+  }
+  .product-img {
+    height: 160px; background: #0d1520;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3.2rem; position: relative;
+    border-bottom: 1px solid var(--border);
+  }
+  .badge-verified {
+    position: absolute; top: 12px; left: 12px;
+    background: rgba(57,255,120,0.15); border: 1px solid rgba(57,255,120,0.4);
+    color: var(--green); font-family: var(--font-mono);
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em;
+    padding: 4px 10px; border-radius: 100px; text-transform: uppercase;
+    display: flex; align-items: center; gap: 5px;
+  }
   .badge-verified::before { content: '✓'; font-size: 0.7rem; }
-  .badge-condition { position: absolute; top: 12px; right: 12px; background: rgba(61,224,255,0.1); border: 1px solid rgba(61,224,255,0.25); color: var(--blue); font-family: var(--font-mono); font-size: 0.6rem; padding: 4px 9px; border-radius: 100px; }
+  .badge-condition {
+    position: absolute; top: 12px; right: 12px;
+    background: rgba(61,224,255,0.1); border: 1px solid rgba(61,224,255,0.25);
+    color: var(--blue); font-family: var(--font-mono);
+    font-size: 0.6rem; padding: 4px 9px; border-radius: 100px;
+  }
   .product-body { padding: 20px; }
   .product-name { font-family: var(--font-head); font-weight: 700; font-size: 0.98rem; margin-bottom: 5px; }
   .product-spec { font-size: 0.78rem; color: var(--text-dim); margin-bottom: 14px; font-family: var(--font-mono); }
   .product-price { display: flex; align-items: baseline; gap: 10px; margin-bottom: 16px; }
   .price-now { font-family: var(--font-head); font-size: 1.35rem; font-weight: 800; color: var(--green); }
-  .price-old { font-size: 0.82rem; color: var(--text-dim); text-decoration: line-through; text-decoration-color: #ff5555; }
-  .price-save { font-family: var(--font-mono); font-size: 0.65rem; color: #ff9f43; background: rgba(255,159,67,0.1); border: 1px solid rgba(255,159,67,0.2); padding: 3px 8px; border-radius: 6px; margin-left: auto; }
-  .btn-add { width: 100%; background: var(--green-dim); border: 1px solid var(--border-bright); color: var(--green); border-radius: 8px; padding: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: var(--font-body); transition: background .2s, box-shadow .2s; }
+  .price-old { font-size: 0.82rem; color: var(--text-dim); text-decoration: line-through; text-decoration-color: var(--red-cross); }
+  .price-save {
+    font-family: var(--font-mono); font-size: 0.65rem; color: #ff9f43;
+    background: rgba(255,159,67,0.1); border: 1px solid rgba(255,159,67,0.2);
+    padding: 3px 8px; border-radius: 6px; margin-left: auto;
+  }
+  .btn-add {
+    width: 100%; background: var(--green-dim); border: 1px solid var(--border-bright);
+    color: var(--green); border-radius: 8px; padding: 10px;
+    font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: var(--font-body);
+    transition: background .2s, box-shadow .2s;
+  }
   .btn-add:hover { background: rgba(57,255,120,0.2); box-shadow: 0 0 16px var(--green-glow); }
   .marketplace-footer { text-align: center; margin-top: 48px; }
   .marketplace-footer p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; }
 
-  #trust { padding: 60px 6vw; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-  .trust-inner { display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
-  .trust-item { display: flex; align-items: center; gap: 12px; }
-  .trust-icon { width: 42px; height: 42px; border-radius: 10px; background: var(--green-dim); border: 1px solid var(--border-bright); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
-  .trust-text { font-size: 0.85rem; font-weight: 500; color: var(--text-muted); }
-  .trust-text strong { display: block; color: var(--text); font-size: 0.92rem; margin-bottom: 2px; }
-
+  /* ── IMPACT ── */
   #impact { background: var(--bg); position: relative; overflow: hidden; }
-  #impact::before { content: ''; position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%); width: 700px; height: 350px; background: radial-gradient(ellipse, rgba(57,255,120,0.07) 0%, transparent 70%); pointer-events: none; }
+  #impact::before {
+    content: '';
+    position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 350px;
+    background: radial-gradient(ellipse, rgba(57,255,120,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
   .impact-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
-  .ewaste-box { margin-top: 32px; background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--green); border-radius: 12px; padding: 24px 28px; }
+  .impact-copy .section-sub { max-width: 100%; }
+  .ewaste-box {
+    margin-top: 32px; background: var(--bg-card);
+    border: 1px solid var(--border); border-left: 3px solid var(--green);
+    border-radius: 12px; padding: 24px 28px;
+  }
   .ewaste-box h4 { font-family: var(--font-head); font-weight: 700; font-size: 1rem; margin-bottom: 10px; }
   .ewaste-box p { color: var(--text-muted); font-size: 0.88rem; line-height: 1.7; font-weight: 300; }
-  .ewaste-flow { display: flex; align-items: center; gap: 10px; margin-top: 16px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-dim); flex-wrap: wrap; }
-  .flow-tag { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; color: var(--text-muted); }
+  .ewaste-flow {
+    display: flex; align-items: center; gap: 10px; margin-top: 16px;
+    font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-dim);
+    flex-wrap: wrap;
+  }
+  .flow-tag {
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    border-radius: 6px; padding: 5px 10px; color: var(--text-muted);
+  }
   .flow-arrow { color: var(--green); }
   .counters { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; }
-  .counter-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 28px 24px; transition: border-color .25s; }
+  .counter-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 28px 24px;
+    transition: border-color .25s;
+  }
   .counter-card:hover { border-color: var(--border-bright); }
-  .counter-num { font-family: var(--font-head); font-size: 2.2rem; font-weight: 800; color: var(--green); line-height: 1; margin-bottom: 6px; }
+  .counter-num {
+    font-family: var(--font-head); font-size: 2.2rem; font-weight: 800;
+    color: var(--green); line-height: 1; margin-bottom: 6px;
+  }
   .counter-label { color: var(--text-muted); font-size: 0.82rem; line-height: 1.4; }
   .counter-icon { font-size: 1.4rem; margin-bottom: 14px; }
 
-  footer { padding: 64px 6vw 40px; border-top: 1px solid var(--border); }
+  /* ── TRUST STRIP ── */
+  #trust { padding: 60px 6vw; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .trust-inner { display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
+  .trust-item { display: flex; align-items: center; gap: 12px; }
+  .trust-icon {
+    width: 42px; height: 42px; border-radius: 10px;
+    background: var(--green-dim); border: 1px solid var(--border-bright);
+    display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+  }
+  .trust-text { font-size: 0.85rem; font-weight: 500; color: var(--text-muted); }
+  .trust-text strong { display: block; color: var(--text); font-size: 0.92rem; margin-bottom: 2px; }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 64px 6vw 40px;
+    border-top: 1px solid var(--border);
+  }
   .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 60px; }
   .footer-brand p { color: var(--text-muted); font-size: 0.88rem; margin-top: 14px; line-height: 1.7; max-width: 280px; font-weight: 300; }
   .footer-socials { display: flex; gap: 12px; margin-top: 22px; }
-  .social-btn { width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; transition: border-color .2s, color .2s; text-decoration: none; }
+  .social-btn {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted); font-size: 0.85rem; cursor: pointer;
+    transition: border-color .2s, color .2s;
+    text-decoration: none;
+  }
   .social-btn:hover { border-color: var(--green); color: var(--green); }
-  .footer-col h5 { font-family: var(--font-head); font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 18px; }
+  .footer-col h5 {
+    font-family: var(--font-head); font-size: 0.88rem; font-weight: 700;
+    color: var(--text); margin-bottom: 18px; letter-spacing: 0.02em;
+  }
   .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
   .footer-col ul a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; transition: color .2s; font-weight: 300; }
   .footer-col ul a:hover { color: var(--green); }
-  .footer-bottom { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 28px; gap: 16px; flex-wrap: wrap; }
+  .footer-bottom {
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 1px solid var(--border); padding-top: 28px; gap: 16px; flex-wrap: wrap;
+  }
   .footer-bottom p { color: var(--text-dim); font-size: 0.8rem; }
   .footer-bottom .mono { font-family: var(--font-mono); color: var(--green); font-size: 0.72rem; }
 
+  /* ── SCROLLBAR ── */
   ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: #1e2a36; border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--green-dim); }
 
+  /* ── COUNTER ANIMATION ── */
+  .count-up { transition: all 0.1s; }
+
+  /* ── MOBILE ── */
   @media (max-width: 900px) {
     .steps { grid-template-columns: 1fr; gap: 16px; }
     .steps::before { display: none; }
     .impact-inner { grid-template-columns: 1fr; }
+    .counters { grid-template-columns: 1fr 1fr; }
     .footer-top { grid-template-columns: 1fr 1fr; }
-  }
-  @media (max-width: 700px) {
-    .audience-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 640px) {
     nav { padding: 16px 5vw; }
     .nav-links, .nav-cta { display: none; }
     .hamburger { display: flex; }
     section { padding: 72px 5vw; }
+    .hero-stats { gap: 24px; }
+    .counters { grid-template-columns: 1fr 1fr; }
     .footer-top { grid-template-columns: 1fr; gap: 32px; }
     .footer-bottom { flex-direction: column; align-items: flex-start; }
     .trust-inner { flex-direction: column; align-items: flex-start; gap: 22px; }
@@ -208,41 +391,47 @@
 </head>
 <body>
 
+<!-- ══ NAVIGATION ══ -->
 <nav>
   <a href="#" class="nav-logo">Mag<span>nemite</span></a>
   <ul class="nav-links">
     <li><a href="#how">How It Works</a></li>
-    <li><a href="#marketplace">Marketplace</a></li>
+    <li><a href="#get-started">Get Started</a></li>
     <li><a href="#impact">Impact</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
-  <button class="nav-cta">Trade In Now →</button>
+  <button class="nav-cta">Sell E-Waste →</button>
   <div class="hamburger" id="ham"><span></span><span></span><span></span></div>
 </nav>
 
+<!-- ══ HERO ══ -->
 <section id="hero">
   <div class="hero-grid-bg"></div>
   <div class="hero-glow"></div>
   <div class="hero-inner">
     <div class="hero-eyebrow">Chandigarh Campus Network · Now Live</div>
-    <h1>Don't let your old projects <span class="accent">gather dust.</span> Trade them. Build more.</h1>
+    <h1>
+      Don't let your old projects
+      <span class="accent">gather dust.</span>
+      Trade them. Build more.
+    </h1>
     <p class="hero-sub">
-      Magnemite is the <strong>campus re-commerce marketplace</strong> for engineering students.
-      Turn last semester's Arduino pile into instant cash. Buy verified, working parts
-      at <strong>up to 60% off</strong> retail — tested by engineers, for engineers.
+      Magnemite is Chandigarh's <strong>campus e-waste collection network</strong> for engineering students.
+      Drop off your old Arduinos, broken sensors, dead batteries, and scrap components —
+      and walk away with <strong>instant cash in hand</strong>. We handle the rest.
     </p>
     <div class="hero-btns">
-      <a href="#marketplace" class="btn-primary">⚡ Shop Verified Parts</a>
-      <a href="#how" class="btn-secondary">↩ Trade-In Your Hardware</a>
+      <a href="#get-started" class="btn-primary">💸 Sell Your E-Waste</a>
+      <a href="#how" class="btn-secondary">↩ See How It Works</a>
     </div>
     <div class="hero-stats">
       <div class="hero-stat-item">
         <div class="hero-stat-num" data-target="2400">0</div>
-        <div class="hero-stat-label">Components Tested</div>
+        <div class="hero-stat-label">KG of E-Waste Collected</div>
       </div>
       <div class="hero-stat-item">
         <div class="hero-stat-num" data-prefix="₹" data-target="86000">0</div>
-        <div class="hero-stat-label">Saved by Students</div>
+        <div class="hero-stat-label">Paid Out to Students</div>
       </div>
       <div class="hero-stat-item">
         <div class="hero-stat-num" data-target="7" data-suffix=" Colleges">0</div>
@@ -252,26 +441,37 @@
   </div>
 </section>
 
+<!-- ══ AUDIENCE SELECTOR ══ -->
 <section id="get-started" style="padding: 0 6vw 90px;">
   <div class="audience-label">I am a —</div>
   <div class="audience-grid">
-    <div class="audience-card" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">
+
+    <div class="audience-card" onclick="openPickupForm()">
       <div class="audience-icon-wrap student-icon">🎓</div>
       <div class="audience-tag">For Students</div>
       <h3 class="audience-title">College Student</h3>
-      <p class="audience-body">Got old Arduinos, dead sensors, or leftover semester project parts piling up? Trade them in for <strong>instant cash payment</strong> and buy verified components at up to 60% off for your next build.</p>
+      <p class="audience-body">
+        Got old Arduinos, dead sensors, or leftover semester project parts piling up?
+        Trade them in for <strong>instant cash payment</strong> and buy verified components
+        at up to 60% off for your next build.
+      </p>
       <ul class="audience-perks">
         <li>✓ Instant cash payout on drop-off</li>
-        <li>✓ 340+ verified parts in stock</li>
-        <li>✓ 7-day performance guarantee</li>
+        <li>✓ We accept broken &amp; dead components</li>
+        <li>✓ Zero paperwork. Just show up.</li>
       </ul>
-      <div class="audience-cta student-cta">Sell My E-Waste &amp; Get Paid →</div>
+      <div class="audience-cta student-cta">Drop Off &amp; Get Paid →</div>
     </div>
-    <div class="audience-card" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">
+
+    <div class="audience-card" onclick="openB2BPortal()">
       <div class="audience-icon-wrap company-icon">🏭</div>
       <div class="audience-tag">For Recyclers</div>
       <h3 class="audience-title">B2B Recycling Partner</h3>
-      <p class="audience-body">We aggregate, sort, and segregate dead campus electronics by material type — PCBs, metals, plastics. Get <strong>consistent, certified e-waste batches</strong> ready for smelting or material recovery at scale.</p>
+      <p class="audience-body">
+        We aggregate, sort, and segregate dead campus electronics by material type —
+        PCBs, metals, plastics. Get <strong>consistent, certified e-waste batches</strong>
+        ready for smelting or material recovery at scale.
+      </p>
       <ul class="audience-perks">
         <li>✓ Pre-sorted by material category</li>
         <li>✓ Bulk supply across campus network</li>
@@ -279,123 +479,208 @@
       </ul>
       <div class="audience-cta company-cta">Partner With Us →</div>
     </div>
+
   </div>
 </section>
 
+<style>
+  .audience-label {
+    font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 20px;
+  }
+  .audience-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  }
+  .audience-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 40px 36px;
+    cursor: pointer; transition: transform .22s, border-color .22s, box-shadow .22s;
+    position: relative; overflow: hidden;
+  }
+  .audience-card::before {
+    content: ''; position: absolute; inset: 0; opacity: 0;
+    transition: opacity .25s;
+  }
+  .audience-card:first-child::before { background: linear-gradient(135deg, rgba(57,255,120,0.07) 0%, transparent 60%); }
+  .audience-card:last-child::before  { background: linear-gradient(135deg, rgba(61,224,255,0.07) 0%, transparent 60%); }
+  .audience-card:hover { transform: translateY(-6px); }
+  .audience-card:first-child:hover { border-color: rgba(57,255,120,0.35); box-shadow: 0 24px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(57,255,120,0.08); }
+  .audience-card:last-child:hover  { border-color: rgba(61,224,255,0.35); box-shadow: 0 24px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(61,224,255,0.08); }
+  .audience-card:hover::before { opacity: 1; }
+  .audience-icon-wrap {
+    width: 58px; height: 58px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.7rem; margin-bottom: 20px; position: relative; z-index: 1;
+  }
+  .student-icon { background: rgba(57,255,120,0.1); border: 1px solid rgba(57,255,120,0.25); }
+  .company-icon { background: rgba(61,224,255,0.1); border: 1px solid rgba(61,224,255,0.25); }
+  .audience-tag {
+    font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.08em;
+    text-transform: uppercase; margin-bottom: 10px; position: relative; z-index: 1;
+  }
+  .audience-card:first-child .audience-tag { color: var(--green); }
+  .audience-card:last-child  .audience-tag { color: var(--blue); }
+  .audience-title {
+    font-family: var(--font-head); font-size: 1.55rem; font-weight: 800;
+    letter-spacing: -0.02em; margin-bottom: 14px; position: relative; z-index: 1;
+  }
+  .audience-body {
+    color: var(--text-muted); font-size: 0.9rem; line-height: 1.72; font-weight: 300;
+    margin-bottom: 22px; position: relative; z-index: 1;
+  }
+  .audience-body strong { color: var(--text); font-weight: 500; }
+  .audience-perks {
+    list-style: none; display: flex; flex-direction: column; gap: 8px;
+    margin-bottom: 30px; position: relative; z-index: 1;
+  }
+  .audience-perks li { font-size: 0.82rem; color: var(--text-muted); font-weight: 300; }
+  .audience-cta {
+    display: inline-flex; align-items: center;
+    border-radius: 10px; padding: 12px 22px;
+    font-size: 0.88rem; font-weight: 700;
+    position: relative; z-index: 1; transition: box-shadow .2s;
+  }
+  .student-cta { background: var(--green); color: #040608; }
+  .student-cta:hover { box-shadow: 0 0 28px var(--green-glow); }
+  .company-cta { background: rgba(61,224,255,0.12); color: var(--blue); border: 1px solid rgba(61,224,255,0.3); }
+  .company-cta:hover { box-shadow: 0 0 28px rgba(61,224,255,0.25); }
+  @media (max-width: 700px) {
+    .audience-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<!-- ══ HOW IT WORKS ══ -->
 <section id="how">
   <div class="section-header">
     <div class="section-tag">// Process</div>
     <h2 class="section-h2">Three steps. Zero friction.</h2>
-    <p class="section-sub">From dusty drawer to funded next project in under 48 hours. We handle QA so you don't have to.</p>
+    <p class="section-sub">Drop off your e-waste, get paid instantly, and know it ends up recycled responsibly. Simple as that.</p>
   </div>
   <div class="steps">
     <div class="step-card">
       <div class="step-num">01 /</div>
       <div class="step-icon">🗃️</div>
       <h3 class="step-title">Purge &amp; Earn</h3>
-      <p class="step-body">Drop off your old Arduinos, sensors, motors, shields, or any semester project parts at your <strong>nearest campus node</strong>. No sorting needed. We accept broken, untested, and working items alike. You receive <strong>instant cash</strong> — paid on the spot, no bank account needed.</p>
+      <p class="step-body">
+        Drop off your old Arduinos, sensors, motors, shields, or any semester project parts at your
+        <strong>nearest campus node</strong>. No sorting needed. We accept broken, untested, and
+        working items alike. You receive <strong>instant cash</strong> — paid on the spot, no bank account needed.
+      </p>
     </div>
     <div class="step-card">
       <div class="step-num">02 /</div>
-      <div class="step-icon">🔬</div>
-      <h3 class="step-title">We Test</h3>
-      <p class="step-body">Every component passes through our <strong>5-point QA protocol</strong> — power-on check, signal continuity, output verification, thermal scan, and stress cycle. Only parts that pass all five checks earn the <strong>Tested &amp; Verified</strong> badge. The rest get recycled responsibly.</p>
+      <div class="step-icon">⚖️</div>
+      <h3 class="step-title">We Sort</h3>
+      <p class="step-body">
+        Every component passes through our <strong>5-point QA protocol</strong> — power-on check, signal
+        continuity, output verification, thermal scan, and stress cycle. Only parts that pass
+        all five checks earn the <strong>Tested &amp; Verified</strong> badge. The rest get recycled responsibly.
+      </p>
     </div>
     <div class="step-card">
       <div class="step-num">03 /</div>
-      <div class="step-icon">🛒</div>
+      <div class="step-icon">💵</div>
       <h3 class="step-title">Buy &amp; Build</h3>
-      <p class="step-body">Browse the marketplace and use your cash — or top up via UPI — to get <strong>verified parts at up to 60% off</strong> retail price. Same-day pickup at your campus node. Backed by our <strong>7-day performance guarantee</strong>. If it fails, we replace it, free.</p>
+      <p class="step-body">
+        Browse the marketplace and use your cash — or top up via UPI — to get
+        <strong>verified parts at up to 60% off</strong> retail price. Same-day pickup at your campus node.
+        Backed by our <strong>7-day performance guarantee</strong>. If it fails, we replace it, free.
+      </p>
     </div>
   </div>
 </section>
 
-<section id="marketplace">
-  <div class="section-header">
-    <div class="section-tag">// Marketplace Preview</div>
-    <h2 class="section-h2">Every part. Tested. Trusted.</h2>
-    <p class="section-sub">Real components, real savings. Every listing carries a QA certificate and a 7-day performance guarantee.</p>
-  </div>
-  <div class="product-grid">
-    <div class="product-card">
-      <div class="product-img">🍓<span class="badge-verified">Tested &amp; Verified</span><span class="badge-condition">Grade A</span></div>
-      <div class="product-body">
-        <div class="product-name">Raspberry Pi Pico</div>
-        <div class="product-spec">RP2040 · Dual-Core · 264KB RAM</div>
-        <div class="product-price"><span class="price-now">₹149</span><span class="price-old">₹399</span><span class="price-save">−63%</span></div>
-        <button class="btn-add">+ Add to Cart</button>
-      </div>
-    </div>
-    <div class="product-card">
-      <div class="product-img">⚙️<span class="badge-verified">Tested &amp; Verified</span><span class="badge-condition">Grade A</span></div>
-      <div class="product-body">
-        <div class="product-name">L298N Motor Driver</div>
-        <div class="product-spec">Dual H-Bridge · 2A · 5–35V</div>
-        <div class="product-price"><span class="price-now">₹55</span><span class="price-old">₹130</span><span class="price-save">−58%</span></div>
-        <button class="btn-add">+ Add to Cart</button>
-      </div>
-    </div>
-    <div class="product-card">
-      <div class="product-img">📡<span class="badge-verified">Tested &amp; Verified</span><span class="badge-condition">Grade B</span></div>
-      <div class="product-body">
-        <div class="product-name">HC-SR04 Ultrasonic</div>
-        <div class="product-spec">2–400cm Range · 3–5V · TTL Output</div>
-        <div class="product-price"><span class="price-now">₹29</span><span class="price-old">₹75</span><span class="price-save">−61%</span></div>
-        <button class="btn-add">+ Add to Cart</button>
-      </div>
-    </div>
-    <div class="product-card">
-      <div class="product-img">🔵<span class="badge-verified">Tested &amp; Verified</span><span class="badge-condition">Grade A</span></div>
-      <div class="product-body">
-        <div class="product-name">Arduino Nano</div>
-        <div class="product-spec">ATmega328P · 16MHz · 32KB Flash</div>
-        <div class="product-price"><span class="price-now">₹129</span><span class="price-old">₹320</span><span class="price-save">−60%</span></div>
-        <button class="btn-add">+ Add to Cart</button>
-      </div>
-    </div>
-  </div>
-  <div class="marketplace-footer">
-    <p>Viewing 4 of 340+ verified components currently in stock across campus nodes.</p>
-    <a href="#" class="btn-primary">Browse Full Catalogue →</a>
-  </div>
-</section>
-
+<!-- ══ TRUST STRIP ══ -->
 <section id="trust">
   <div class="trust-inner">
-    <div class="trust-item"><div class="trust-icon">✅</div><div class="trust-text"><strong>5-Point QA Protocol</strong>Every component tested before listing</div></div>
-    <div class="trust-item"><div class="trust-icon">🔁</div><div class="trust-text"><strong>7-Day Performance Guarantee</strong>Fails in a week? We replace it free</div></div>
-    <div class="trust-item"><div class="trust-icon">⚡</div><div class="trust-text"><strong>Instant Cash Payout</strong>Paid on the spot when you drop off</div></div>
-    <div class="trust-item"><div class="trust-icon">♻️</div><div class="trust-text"><strong>Zero E-Waste Campus</strong>Dead parts go to authorized B2B smelters</div></div>
+    <div class="trust-item">
+      <div class="trust-icon">✅</div>
+      <div class="trust-text">
+        <strong>We Accept Everything</strong>
+        Broken, dead, or working — all scrap welcome
+      </div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">🔁</div>
+      <div class="trust-text">
+        <strong>Same-Day Collection</strong>
+        Drop off at any campus node, anytime
+      </div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">⚡</div>
+      <div class="trust-text">
+        <strong>Instant Cash Payout</strong>
+        Paid on the spot when you drop off
+      </div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">♻️</div>
+      <div class="trust-text">
+        <strong>Zero E-Waste Campus</strong>
+        All scrap goes to certified B2B recyclers
+      </div>
+    </div>
   </div>
 </section>
 
+<!-- ══ IMPACT ══ -->
 <section id="impact">
   <div class="impact-inner">
     <div class="impact-copy">
       <div class="section-tag">// Our Commitment</div>
       <h2 class="section-h2">Circular by design.<br>Zero e-waste. Always.</h2>
-      <p class="section-sub">We believe a component's life shouldn't end in a hostel drawer or a bin. Magnemite is built on one promise: nothing we touch ends up in a landfill.</p>
+      <p class="section-sub">
+        We believe a component's life shouldn't end in a hostel drawer or a bin.
+        Magnemite is built on one promise: nothing we touch ends up in a landfill.
+      </p>
       <div class="ewaste-box">
         <h4>♻️ The Zero E-Waste Guarantee</h4>
-        <p>Components that fail our QA tests are not discarded — they're aggregated by material type and routed to authorised B2B recyclers and certified smelters who recover copper, tin, gold, and rare-earth metals from PCBs. Every batch comes with a recycling manifest so you know exactly where your old hardware ended up.</p>
+        <p>
+          Components that fail our QA tests are not discarded — they're aggregated by material type
+          and routed to authorised B2B recyclers and certified smelters who recover copper, tin, gold,
+          and rare-earth metals from PCBs. Every batch comes with a recycling manifest so you know
+          exactly where your old hardware ended up.
+        </p>
         <div class="ewaste-flow">
-          <span class="flow-tag">Trade-In</span><span class="flow-arrow">→</span>
-          <span class="flow-tag">QA Test</span><span class="flow-arrow">→</span>
-          <span class="flow-tag">Fails?</span><span class="flow-arrow">→</span>
-          <span class="flow-tag">Aggregated</span><span class="flow-arrow">→</span>
+          <span class="flow-tag">Trade-In</span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-tag">QA Test</span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-tag">Fails?</span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-tag">Aggregated</span>
+          <span class="flow-arrow">→</span>
           <span class="flow-tag">Authorized Smelter</span>
         </div>
       </div>
     </div>
     <div class="counters">
-      <div class="counter-card"><div class="counter-icon">🔩</div><div class="counter-num" data-target="2400">0</div><div class="counter-label">Components Recycled &amp; Recovered</div></div>
-      <div class="counter-card"><div class="counter-icon">💰</div><div class="counter-num" data-prefix="₹" data-target="86000">0</div><div class="counter-label">Money Saved by Students</div></div>
-      <div class="counter-card"><div class="counter-icon">🏫</div><div class="counter-num" data-target="7">0</div><div class="counter-label">Active Campus Nodes Live</div></div>
-      <div class="counter-card"><div class="counter-icon">🌱</div><div class="counter-num" data-target="98" data-suffix="%">0</div><div class="counter-label">Landfill Diversion Rate</div></div>
+      <div class="counter-card">
+        <div class="counter-icon">🔩</div>
+        <div class="counter-num" data-target="2400">0</div>
+        <div class="counter-label">KG of E-Waste Collected</div>
+      </div>
+      <div class="counter-card">
+        <div class="counter-icon">💰</div>
+        <div class="counter-num" data-prefix="₹" data-target="86000">0</div>
+        <div class="counter-label">Money Paid Out to Students</div>
+      </div>
+      <div class="counter-card">
+        <div class="counter-icon">🏫</div>
+        <div class="counter-num" data-target="7">0</div>
+        <div class="counter-label">Active Campus Nodes Live</div>
+      </div>
+      <div class="counter-card">
+        <div class="counter-icon">🌱</div>
+        <div class="counter-num" data-target="98" data-suffix="%">0</div>
+        <div class="counter-label">Landfill Diversion Rate</div>
+      </div>
     </div>
   </div>
 </section>
 
+<!-- ══ FOOTER ══ -->
 <footer id="contact">
   <div class="footer-top">
     <div class="footer-brand">
@@ -411,9 +696,9 @@
     <div class="footer-col">
       <h5>Platform</h5>
       <ul>
-        <li><a href="#">Browse Marketplace</a></li>
+        <li><a href="#">Schedule a Pickup</a></li>
         <li><a href="#">Trade-In My Hardware</a></li>
-        <li><a href="#">Track My Payouts</a></li>
+        <li><a href="#">Track My Collection</a></li>
         <li><a href="#">Campus Node Locator</a></li>
       </ul>
     </div>
@@ -432,17 +717,334 @@
         <li><a href="#">Campus Ambassador Program</a></li>
         <li><a href="#">Refer a College</a></li>
         <li><a href="#">Contact Us</a></li>
-        <li><a href="mailto:magnemiteindia@gmail.com">magnemiteindia@gmail.com</a></li>
+        <li><a href="/cdn-cgi/l/email-protection#523f33353c373f3b26373b3c363b3312353f333b3e7c313d3f"><span class="__cf_email__" data-cfemail="bdd0dcdad3d8d0d4c9d8d4d3d9d4dcfddad0dcd4d193ded2d0">[email&#160;protected]</span></a></li>
       </ul>
     </div>
   </div>
   <div class="footer-bottom">
-    <p>©️ 2025 Magnemite Technologies Pvt. Ltd. · Chandigarh, India</p>
+    <p>© 2025 Magnemite Technologies Pvt. Ltd. · Chandigarh, India</p>
     <span class="mono">// v1.0 · Making campus circular</span>
   </div>
 </footer>
 
+<!-- ══ PICKUP BOOKING MODAL ══ -->
+<div id="pickup-modal" style="display:none; position:fixed; inset:0; z-index:1000; background:rgba(4,6,8,0.88); backdrop-filter:blur(10px); overflow-y:auto; padding:40px 16px;">
+  <div id="pickup-box" style="max-width:620px; margin:0 auto; background:#0e1318; border:1px solid rgba(57,255,120,0.2); border-radius:20px; padding:40px; position:relative; animation:fadeUp 0.35s ease both;">
+
+    <button onclick="closePickupForm()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#7a8898;width:36px;height:36px;border-radius:8px;font-size:1rem;cursor:pointer;">✕</button>
+
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#39ff78;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">// Schedule Pickup</div>
+    <h2 style="font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;">Book Your E-Waste Drop-Off</h2>
+    <p style="color:#7a8898;font-size:0.88rem;font-weight:300;margin-bottom:28px;line-height:1.7;">Fill in your details, list your scrap items, and upload photos. We'll confirm your pickup on WhatsApp.</p>
+
+    <div style="display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap;">
+      <div class="step-dot active-dot" id="dot1">1 · Your Details</div>
+      <div style="color:#4a5566;font-size:0.75rem;display:flex;align-items:center;">→</div>
+      <div class="step-dot" id="dot2">2 · Your Scrap</div>
+      <div style="color:#4a5566;font-size:0.75rem;display:flex;align-items:center;">→</div>
+      <div class="step-dot" id="dot3">3 · Confirm</div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div id="step1">
+      <div class="form-group"><label class="form-label">Full Name *</label><input id="f-name" type="text" class="form-input" placeholder="e.g. Arjun Sharma" /></div>
+      <div class="form-group"><label class="form-label">College Name *</label><input id="f-college" type="text" class="form-input" placeholder="e.g. PEC University of Technology" /></div>
+      <div class="form-group"><label class="form-label">Hostel Block / Area *</label><input id="f-hostel" type="text" class="form-input" placeholder="e.g. Block C, Room 204" /></div>
+      <div class="form-group">
+        <label class="form-label">Your WhatsApp Number *</label>
+        <div style="display:flex;">
+          <span style="background:#080b10;border:1px solid rgba(255,255,255,0.08);border-right:none;border-radius:10px 0 0 10px;padding:12px 14px;color:#7a8898;font-size:0.88rem;font-family:'JetBrains Mono',monospace;white-space:nowrap;">+91</span>
+          <input id="f-phone" type="tel" class="form-input" style="border-radius:0 10px 10px 0;" placeholder="9876543210" maxlength="10" />
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Email Address *</label><input id="f-email" type="email" class="form-input" placeholder="e.g. arjun@gmail.com" /></div>
+      <div class="form-group"><label class="form-label">Preferred Pickup Date *</label><input id="f-date" type="date" class="form-input" /></div>
+      <div class="form-group">
+        <label class="form-label">Preferred Time Slot *</label>
+        <select id="f-time" class="form-input form-select">
+          <option value="">Select a time slot</option>
+          <option>Morning (9 AM – 12 PM)</option>
+          <option>Afternoon (12 PM – 3 PM)</option>
+          <option>Evening (3 PM – 6 PM)</option>
+        </select>
+      </div>
+      <button onclick="goStep(2)" class="form-btn-primary">Next: List Your Scrap →</button>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="step2" style="display:none;">
+      <p style="color:#7a8898;font-size:0.85rem;margin-bottom:20px;font-weight:300;">Add each type of scrap item. You can add multiple rows.</p>
+      <div id="items-list"></div>
+      <button onclick="addItem()" style="background:rgba(57,255,120,0.07);border:1px dashed rgba(57,255,120,0.3);color:#39ff78;border-radius:10px;padding:11px 20px;font-size:0.85rem;font-weight:600;cursor:pointer;width:100%;margin-bottom:24px;font-family:'DM Sans',sans-serif;">+ Add Another Item</button>
+
+      <div class="form-group">
+        <label class="form-label">Upload Photos of Your Scrap *</label>
+        <div id="upload-zone" onclick="document.getElementById('f-photos').click()" style="border:1px dashed rgba(57,255,120,0.3);border-radius:12px;padding:28px;text-align:center;cursor:pointer;background:rgba(57,255,120,0.04);">
+          <div style="font-size:2rem;margin-bottom:8px;">📸</div>
+          <div style="color:#39ff78;font-weight:600;font-size:0.88rem;margin-bottom:4px;" id="upload-label">Click to upload photos</div>
+          <div style="color:#4a5566;font-size:0.75rem;">JPG, PNG · Multiple files allowed</div>
+          <input id="f-photos" type="file" accept="image/*" multiple style="display:none;" onchange="previewPhotos(this)" />
+        </div>
+        <div id="photo-preview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;"></div>
+      </div>
+
+      <div class="form-group"><label class="form-label">Additional Notes (optional)</label><textarea id="f-notes" class="form-input" rows="3" placeholder="Anything else we should know? e.g. bent pins, missing parts" style="resize:vertical;"></textarea></div>
+
+      <div style="display:flex;gap:12px;">
+        <button onclick="goStep(1)" style="background:transparent;border:1px solid rgba(255,255,255,0.1);color:#7a8898;border-radius:10px;padding:13px 22px;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;">← Back</button>
+        <button onclick="goStep(3)" class="form-btn-primary" style="flex:1;">Review Booking →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div id="step3" style="display:none;">
+      <div style="background:#080b10;border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:24px;margin-bottom:20px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#39ff78;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;">Booking Summary</div>
+        <div id="summary-content"></div>
+      </div>
+      <div style="background:rgba(57,255,120,0.05);border:1px solid rgba(57,255,120,0.15);border-radius:12px;padding:18px;margin-bottom:22px;display:flex;gap:14px;align-items:flex-start;">
+        <span style="font-size:1.4rem;">🔒</span>
+        <div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px;">One click — fully automatic</div>
+          <div style="color:#7a8898;font-size:0.8rem;font-weight:300;line-height:1.6;">Clicking confirm will instantly register your booking and notify our team. You'll see a confirmation screen right here. <strong style="color:#e8edf2;">No WhatsApp chat needed on your end.</strong></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <button onclick="goStep(2)" style="background:transparent;border:1px solid rgba(255,255,255,0.1);color:#7a8898;border-radius:10px;padding:13px 22px;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;">← Back</button>
+        <button onclick="submitBooking()" class="form-btn-primary" style="flex:1;" id="confirm-btn">✅ Confirm Pickup Booking</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: SUCCESS -->
+    <div id="step4" style="display:none;text-align:center;padding:20px 0;">
+      <div style="width:72px;height:72px;background:rgba(57,255,120,0.12);border:1px solid rgba(57,255,120,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 24px;">✅</div>
+      <h3 style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:10px;">Booking Confirmed!</h3>
+      <p style="color:#7a8898;font-size:0.9rem;font-weight:300;line-height:1.7;margin-bottom:28px;">Your pickup has been registered. Our team has been notified and will reach out to you on <strong style="color:#e8edf2;" id="confirm-phone"></strong> to confirm the slot within 2 hours.</p>
+      <div style="background:#080b10;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:20px;margin-bottom:28px;text-align:left;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.63rem;color:#39ff78;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Your Booking ID</div>
+        <div id="booking-id" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;color:#e8edf2;letter-spacing:0.08em;"></div>
+        <div style="color:#4a5566;font-size:0.75rem;margin-top:6px;">Screenshot this for your reference</div>
+      </div>
+      <button onclick="closePickupForm()" class="form-btn-primary">Done →</button>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .form-group { margin-bottom: 20px; }
+  .form-label { display:block; font-size:0.8rem; font-weight:600; color:#e8edf2; margin-bottom:8px; }
+  .form-input { width:100%; background:#080b10; border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px 16px; color:#e8edf2; font-size:0.9rem; font-family:'DM Sans',sans-serif; outline:none; transition:border-color .2s; box-sizing:border-box; }
+  .form-input:focus { border-color:rgba(57,255,120,0.4); }
+  .form-input::placeholder { color:#4a5566; }
+  textarea.form-input { resize: vertical; }
+  .form-select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a8898' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; }
+  .form-btn-primary { width:100%; background:#39ff78; color:#040608; border:none; border-radius:10px; padding:14px; font-size:0.95rem; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; transition:box-shadow .2s,transform .15s; }
+  .form-btn-primary:hover { box-shadow:0 0 28px rgba(57,255,120,0.4); transform:translateY(-1px); }
+  .form-btn-whatsapp { background:#25d366; color:#fff; border:none; border-radius:10px; padding:14px; font-size:0.95rem; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; transition:box-shadow .2s,transform .15s; }
+  .form-btn-whatsapp:hover { box-shadow:0 0 28px rgba(37,211,102,0.45); transform:translateY(-1px); }
+  .step-dot { font-family:'JetBrains Mono',monospace; font-size:0.68rem; color:#4a5566; padding:5px 10px; border-radius:6px; border:1px solid transparent; }
+  .active-dot { color:#39ff78; border-color:rgba(57,255,120,0.3); background:rgba(57,255,120,0.08); }
+  .item-row { display:grid; grid-template-columns:2fr 80px 1fr 36px; gap:8px; margin-bottom:10px; align-items:center; }
+  input[type='date']::-webkit-calendar-picker-indicator { filter:invert(0.4); cursor:pointer; }
+  .sum-row { display:flex; justify-content:space-between; gap:16px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+  .sum-key { font-size:0.75rem; color:#4a5566; font-family:'JetBrains Mono',monospace; flex-shrink:0; }
+  .sum-val { font-size:0.83rem; color:#e8edf2; text-align:right; }
+  @media (max-width:520px) { .item-row { grid-template-columns:1fr 1fr; } }
+</style>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  let itemCount = 0;
+
+  function openPickupForm() {
+    document.getElementById('pickup-modal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('f-date').min = today;
+    if (itemCount === 0) addItem();
+  }
+
+  function closePickupForm() {
+    document.getElementById('pickup-modal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('pickup-modal').addEventListener('click', function(e) {
+    if (e.target === this) closePickupForm();
+  });
+
+  function goStep(n) {
+    if (n === 2) {
+      const name = document.getElementById('f-name').value.trim();
+      const college = document.getElementById('f-college').value.trim();
+      const hostel = document.getElementById('f-hostel').value.trim();
+      const phone = document.getElementById('f-phone').value.trim();
+      const email = document.getElementById('f-email').value.trim();
+      const date = document.getElementById('f-date').value;
+      const time = document.getElementById('f-time').value;
+      if (!name || !college || !hostel || !phone || !email || !date || !time) { alert('Please fill in all required fields.'); return; }
+      if (!/^\d{10}$/.test(phone)) { alert('Please enter a valid 10-digit WhatsApp number.'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email address.'); return; }
+    }
+    if (n === 3) {
+      const items = document.querySelectorAll('.item-type');
+      let hasItem = false;
+      items.forEach(i => { if (i.value) hasItem = true; });
+      if (!hasItem) { alert('Please add at least one scrap item.'); return; }
+      buildSummary();
+    }
+    document.getElementById('step1').style.display = n === 1 ? 'block' : 'none';
+    document.getElementById('step2').style.display = n === 2 ? 'block' : 'none';
+    document.getElementById('step3').style.display = n === 3 ? 'block' : 'none';
+    ['dot1','dot2','dot3'].forEach((id, i) => {
+      document.getElementById(id).className = (i+1===n) ? 'step-dot active-dot' : 'step-dot';
+    });
+    document.getElementById('pickup-box').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function addItem() {
+    itemCount++;
+    const div = document.createElement('div');
+    div.className = 'item-row';
+    div.id = 'item-' + itemCount;
+    div.innerHTML = `
+      <select class="form-input form-select item-type" style="font-family:'DM Sans',sans-serif;">
+        <option value="">Item Type</option>
+        <option>Microcontroller (Arduino, ESP, etc.)</option>
+        <option>Sensor Module</option>
+        <option>Motor / Servo</option>
+        <option>Motor Driver / Shield</option>
+        <option>PCB / Circuit Board</option>
+        <option>Power Supply / Adapter</option>
+        <option>Battery / Li-ion Cell</option>
+        <option>Copper Wiring / Cables</option>
+        <option>Structural Parts / Chassis</option>
+        <option>Laptop / Phone Parts</option>
+        <option>Other Electronics</option>
+      </select>
+      <input type="number" class="form-input item-qty" placeholder="Qty" min="1" style="text-align:center;" />
+      <select class="form-input form-select item-cond" style="font-family:'DM Sans',sans-serif;">
+        <option value="">Condition</option>
+        <option>Working</option>
+        <option>Semi-Functional</option>
+        <option>Dead / Broken</option>
+      </select>
+      <button onclick="removeItem(${itemCount})" style="background:rgba(255,85,85,0.1);border:1px solid rgba(255,85,85,0.2);color:#ff5555;border-radius:8px;width:36px;height:44px;cursor:pointer;font-size:0.9rem;">✕</button>
+    `;
+    document.getElementById('items-list').appendChild(div);
+  }
+
+  function removeItem(id) {
+    const el = document.getElementById('item-' + id);
+    if (el) el.remove();
+  }
+
+  function previewPhotos(input) {
+    const preview = document.getElementById('photo-preview');
+    preview.innerHTML = '';
+    Array.from(input.files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.cssText = 'width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid rgba(57,255,120,0.25);';
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+    document.getElementById('upload-label').textContent = input.files.length + ' photo(s) selected ✓';
+  }
+
+  function buildSummary() {
+    const rows = document.querySelectorAll('.item-row');
+    let itemsHtml = '';
+    rows.forEach(row => {
+      const type = row.querySelector('.item-type').value;
+      const qty = row.querySelector('.item-qty').value || '?';
+      const cond = row.querySelector('.item-cond').value || 'unspecified';
+      if (type) itemsHtml += `<div style="font-size:0.82rem;color:#7a8898;padding:4px 0;">• ${type} × ${qty} — <span style="color:#39ff78">${cond}</span></div>`;
+    });
+    const photos = document.getElementById('f-photos').files;
+    document.getElementById('summary-content').innerHTML = `
+      <div class="sum-row"><span class="sum-key">Name</span><span class="sum-val">${document.getElementById('f-name').value}</span></div>
+      <div class="sum-row"><span class="sum-key">College</span><span class="sum-val">${document.getElementById('f-college').value}</span></div>
+      <div class="sum-row"><span class="sum-key">Location</span><span class="sum-val">${document.getElementById('f-hostel').value}</span></div>
+      <div class="sum-row"><span class="sum-key">WhatsApp</span><span class="sum-val">+91 ${document.getElementById('f-phone').value}</span></div>
+      <div class="sum-row"><span class="sum-key">Email</span><span class="sum-val">${document.getElementById('f-email').value}</span></div>
+      <div class="sum-row"><span class="sum-key">Pickup</span><span class="sum-val">${document.getElementById('f-date').value} · ${document.getElementById('f-time').value}</span></div>
+      <div class="sum-row"><span class="sum-key">Photos</span><span class="sum-val">${photos.length} file(s)</span></div>
+      <div style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:0.63rem;color:#39ff78;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px;">Items</div>
+      ${itemsHtml}
+    `;
+  }
+
+  function submitBooking() {
+    const btn = document.getElementById('confirm-btn');
+    btn.disabled = true;
+    btn.textContent = 'Confirming...';
+
+    const name = document.getElementById('f-name').value;
+    const college = document.getElementById('f-college').value;
+    const hostel = document.getElementById('f-hostel').value;
+    const phone = document.getElementById('f-phone').value;
+    const email = document.getElementById('f-email').value;
+    const date = document.getElementById('f-date').value;
+    const time = document.getElementById('f-time').value;
+    const notes = document.getElementById('f-notes').value;
+    const rows = document.querySelectorAll('.item-row');
+    let itemsList = '';
+    rows.forEach(row => {
+      const type = row.querySelector('.item-type').value;
+      const qty  = row.querySelector('.item-qty').value || '?';
+      const cond = row.querySelector('.item-cond').value || 'unspecified';
+      if (type) itemsList += `\n  • ${type} × ${qty} (${cond})`;
+    });
+    const photos = document.getElementById('f-photos').files;
+
+    // Generate unique booking ID
+    const bookingId = 'MGN-' + Date.now().toString(36).toUpperCase();
+
+    // ── EmailJS silent send to magnemiteindia@gmail.com ──
+    // Uses EmailJS free tier (200 emails/month). One-time setup:
+    // 1. Sign up at emailjs.com
+    // 2. Add Gmail service → connect magnemiteindia@gmail.com
+    // 3. Create a template with variables matching the params below
+    // 4. Replace the three IDs below with yours
+    emailjs.send(
+      'service_d3wcode',   // e.g. 'service_abc123'
+      'template_oc3uash',
+      {
+        booking_id:  bookingId,
+        student_name: name,
+        college:     college,
+        location:    hostel,
+        whatsapp:    '+91 ' + phone,
+        student_email: email,
+        pickup_date: date,
+        time_slot:   time,
+        items:       itemsList,
+        photo_count: photos.length + ' photo(s) uploaded by student',
+        notes:       notes || 'None',
+        to_email:    'magnemiteindia@gmail.com'
+      }
+    ).catch(() => {}); // silent fail — confirmation screen shows regardless
+
+    // Show confirmation screen immediately
+    document.getElementById('confirm-phone').textContent = '+91 ' + phone;
+    document.getElementById('booking-id').textContent = bookingId;
+
+    // Hide steps, show success
+    document.getElementById('step3').style.display = 'none';
+    document.getElementById('step4').style.display = 'block';
+    ['dot1','dot2','dot3'].forEach(id => {
+      document.getElementById(id).className = 'step-dot';
+    });
+    document.getElementById('pickup-box').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+</script>
+
 <script>
+  // Count-up animation
   function animateCount(el) {
     const target = parseInt(el.dataset.target);
     const prefix = el.dataset.prefix || '';
@@ -459,13 +1061,17 @@
     }
     requestAnimationFrame(update);
   }
+
   const counters = document.querySelectorAll('[data-target]');
   const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { animateCount(e.target); observer.unobserve(e.target); } });
+    entries.forEach(e => {
+      if (e.isIntersecting) { animateCount(e.target); observer.unobserve(e.target); }
+    });
   }, { threshold: 0.5 });
   counters.forEach(c => observer.observe(c));
 
-  const reveals = document.querySelectorAll('.step-card, .product-card, .counter-card, .trust-item');
+  // Subtle scroll reveal
+  const reveals2 = document.querySelectorAll('.step-card, .counter-card, .trust-item');
   const revObs = new IntersectionObserver(entries => {
     entries.forEach((e, i) => {
       if (e.isIntersecting) {
@@ -477,7 +1083,234 @@
       }
     });
   }, { threshold: 0.12 });
-  reveals.forEach(r => revObs.observe(r));
+  reveals2.forEach(r => revObs.observe(r));
+</script>
+
+<!-- ══ B2B PORTAL OVERLAY ══ -->
+<div id="b2b-portal" style="display:none;position:fixed;inset:0;z-index:2000;background:#07090c;overflow-y:auto;">
+
+  <!-- B2B NAV -->
+  <div style="position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:16px 6vw;background:rgba(7,9,12,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);">
+    <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem;color:#dde3ea;">Mag<span style="color:#ffb400">nemite</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#ffb400;background:rgba(255,180,0,0.1);border:1px solid rgba(255,180,0,0.3);border-radius:4px;padding:3px 8px;letter-spacing:0.06em;vertical-align:middle;margin-left:8px;">B2B PORTAL</span></span>
+    <button onclick="closeB2BPortal()" style="display:flex;align-items:center;gap:8px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:#6b7886;border-radius:8px;padding:8px 16px;font-size:0.82rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color .2s,border-color .2s;" onmouseover="this.style.color='#dde3ea';this.style.borderColor='rgba(255,180,0,0.3)'" onmouseout="this.style.color='#6b7886';this.style.borderColor='rgba(255,255,255,0.1)'">← Back to Homepage</button>
+  </div>
+
+  <div style="padding:80px 6vw 100px;max-width:1200px;margin:0 auto;">
+
+    <!-- HERO -->
+    <div style="margin-bottom:80px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#ffb400;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:10px;"><span style="width:28px;height:1px;background:#ffb400;opacity:0.5;display:inline-block;"></span>Authorised Recycler Network · Chandigarh</div>
+      <h1 style="font-family:'Syne',sans-serif;font-size:clamp(2.8rem,6vw,5.5rem);font-weight:800;line-height:1.0;letter-spacing:-0.02em;margin-bottom:24px;">Stop Chasing<br><span style="color:#ffb400;">Scattered</span><br><span style="color:transparent;-webkit-text-stroke:1px rgba(255,255,255,0.2);">Feedstock.</span></h1>
+      <p style="font-size:1.05rem;font-weight:300;color:#6b7886;max-width:580px;line-height:1.8;margin-bottom:40px;">Magnemite aggregates <strong style="color:#dde3ea;font-weight:500;">high-density, pre-segregated institutional e-waste</strong> directly from engineering campuses. One node. One truck. <strong style="color:#dde3ea;font-weight:500;">Zero last-mile cost.</strong></p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;max-width:700px;">
+        <div style="padding:20px 22px;border-right:1px solid rgba(255,255,255,0.06);"><div style="font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;color:#ffb400;line-height:1;">2,400</div><div style="font-size:0.72rem;color:#3a4450;margin-top:4px;">KG Aggregated</div></div>
+        <div style="padding:20px 22px;border-right:1px solid rgba(255,255,255,0.06);"><div style="font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;color:#ffb400;line-height:1;">7</div><div style="font-size:0.72rem;color:#3a4450;margin-top:4px;">Campus Nodes</div></div>
+        <div style="padding:20px 22px;border-right:1px solid rgba(255,255,255,0.06);"><div style="font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;color:#ffb400;line-height:1;">94%</div><div style="font-size:0.72rem;color:#3a4450;margin-top:4px;">Purity Rate</div></div>
+        <div style="padding:20px 22px;"><div style="font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;color:#ffb400;line-height:1;">48hr</div><div style="font-size:0.72rem;color:#3a4450;margin-top:4px;">Dispatch Time</div></div>
+      </div>
+    </div>
+
+    <!-- PROBLEM / SOLUTION -->
+    <div style="margin-bottom:80px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#ffb400;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px;"><span style="width:24px;height:1px;background:#ffb400;opacity:0.6;display:inline-block;"></span>The Business Case</div>
+      <h2 style="font-family:'Syne',sans-serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;letter-spacing:-0.01em;text-transform:uppercase;margin-bottom:12px;">Why Institutional Feedstock Wins</h2>
+      <p style="color:#6b7886;font-weight:300;font-size:0.95rem;line-height:1.75;margin-bottom:40px;max-width:560px;">Household e-waste collection is expensive, contaminated, and unpredictable. Campus aggregation is the opposite.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div style="background:#0f1318;border:1px solid rgba(255,68,68,0.12);border-radius:12px;padding:32px 28px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#ff4444;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#ff4444;display:inline-block;"></span>The Old Model</div>
+          <div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:18px;">Scattered Household Pickup</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:12px;">
+            <li style="font-size:0.87rem;color:#6b7886;font-weight:300;line-height:1.6;padding-left:18px;position:relative;"><span style="position:absolute;left:0;">✗</span>Dozens of micro-pickups per tonne — last-mile logistics eat 30–40% of margin</li>
+            <li style="font-size:0.87rem;color:#6b7886;font-weight:300;line-height:1.6;padding-left:18px;position:relative;"><span style="position:absolute;left:0;">✗</span>Contaminated streams mixed with household plastics and food residue</li>
+            <li style="font-size:0.87rem;color:#6b7886;font-weight:300;line-height:1.6;padding-left:18px;position:relative;"><span style="position:absolute;left:0;">✗</span>Unpredictable volume — can't forecast feedstock for furnace scheduling</li>
+            <li style="font-size:0.87rem;color:#6b7886;font-weight:300;line-height:1.6;padding-left:18px;position:relative;"><span style="position:absolute;left:0;">✗</span>High manual sorting cost before material hits your processing line</li>
+          </ul>
+        </div>
+        <div style="background:#0f1318;border:1px solid rgba(255,180,0,0.3);border-radius:12px;padding:32px 28px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#ffb400;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#ffb400;display:inline-block;"></span>The Magnemite Model</div>
+          <div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;text-transform:uppercase;color:#ffb400;margin-bottom:18px;">Campus Aggregation Node</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:12px;">
+            <li style="font-size:0.87rem;color:#6b7886;font-weight:300;line-height:1.6;padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:#ffb400;">✓</span>One truck pickup per batch — full bulk consignment from a single centralized node</li>
+            <li style="font-size:0.87rem;color:#6b7886;font-weight:300;line-height:1.6;padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:#ffb400;">✓</span>Pre-segregated, uncontaminated streams — STEM hardware only, zero domestic waste</li>
+            <li style="font-size:0.87rem;color:#6b7886;font-weight:300;line-height:1.6;padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:#ffb400;">✓</span>Scheduled dispatch windows — predictable feedstock for your furnace planning</li>
+            <li style="font-size:0.87rem;color:#6b7886;font-weight:300;line-height:1.6;padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:#ffb400;">✓</span>Zero sorting overhead — arrives weighed, labelled, and categorized by type</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- MATERIAL STREAMS -->
+    <div style="margin-bottom:80px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#ffb400;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px;"><span style="width:24px;height:1px;background:#ffb400;opacity:0.6;display:inline-block;"></span>Supply Catalogue</div>
+      <h2 style="font-family:'Syne',sans-serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;text-transform:uppercase;margin-bottom:12px;">Our Material Streams</h2>
+      <p style="color:#6b7886;font-weight:300;font-size:0.95rem;line-height:1.75;margin-bottom:40px;max-width:560px;">All materials are triaged by technically trained students before aggregation. No household contamination. No guesswork.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:32px;">
+        <div class="b2b-mcard"><div style="font-size:1.6rem;margin-bottom:12px;">🟩</div><div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:#ffb400;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:6px;">Stream 01 · High Value</div><div style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800;text-transform:uppercase;margin-bottom:8px;">Grade-A PCBs</div><div style="font-size:0.8rem;color:#6b7886;font-weight:300;line-height:1.6;margin-bottom:12px;">Populated boards from microcontrollers and dev kits. High Au, Ag, Pd content. STEM-only source.</div><div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);"><span style="font-size:0.68rem;color:#3a4450;font-family:'JetBrains Mono',monospace;">Purity</span><span style="font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;color:#ffb400;">Grade A+</span></div></div>
+        <div class="b2b-mcard"><div style="font-size:1.6rem;margin-bottom:12px;">🔶</div><div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:#ffb400;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:6px;">Stream 02 · High Volume</div><div style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800;text-transform:uppercase;margin-bottom:8px;">Stripped Copper</div><div style="font-size:0.8rem;color:#6b7886;font-weight:300;line-height:1.6;margin-bottom:12px;">Motor windings, jumper wire bundles. Separated from insulation at source by students.</div><div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);"><span style="font-size:0.68rem;color:#3a4450;font-family:'JetBrains Mono',monospace;">Purity</span><span style="font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;color:#ffb400;">99.1%+</span></div></div>
+        <div class="b2b-mcard"><div style="font-size:1.6rem;margin-bottom:12px;">🔋</div><div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:#ffb400;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:6px;">Stream 03 · Regulated</div><div style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800;text-transform:uppercase;margin-bottom:8px;">Lithium Cells</div><div style="font-size:0.8rem;color:#6b7886;font-weight:300;line-height:1.6;margin-bottom:12px;">Li-ion and LiPo cells from drone and robotics kits. Transported per CPCB HW norms.</div><div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);"><span style="font-size:0.68rem;color:#3a4450;font-family:'JetBrains Mono',monospace;">Class</span><span style="font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;color:#ffb400;">HW-7</span></div></div>
+        <div class="b2b-mcard"><div style="font-size:1.6rem;margin-bottom:12px;">⚙️</div><div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:#ffb400;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:6px;">Stream 04 · Bulk</div><div style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800;text-transform:uppercase;margin-bottom:8px;">Ferrous / Motors</div><div style="font-size:0.8rem;color:#6b7886;font-weight:300;line-height:1.6;margin-bottom:12px;">Stepper motors, DC motors, chassis parts. Separated Fe/Al housings for direct metal recovery.</div><div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);"><span style="font-size:0.68rem;color:#3a4450;font-family:'JetBrains Mono',monospace;">Separation</span><span style="font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;color:#ffb400;">Fe / Al Split</span></div></div>
+        <div class="b2b-mcard"><div style="font-size:1.6rem;margin-bottom:12px;">🖥️</div><div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:#ffb400;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:6px;">Stream 05 · Mixed</div><div style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800;text-transform:uppercase;margin-bottom:8px;">Display Modules</div><div style="font-size:0.8rem;color:#6b7886;font-weight:300;line-height:1.6;margin-bottom:12px;">LCD, OLED, and TFT panels from lab projects. Sorted by substrate for glass-to-glass recycling.</div><div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);"><span style="font-size:0.68rem;color:#3a4450;font-family:'JetBrains Mono',monospace;">Substrate</span><span style="font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;color:#ffb400;">Glass / ABS</span></div></div>
+        <div class="b2b-mcard"><div style="font-size:1.6rem;margin-bottom:12px;">🔌</div><div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:#ffb400;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:6px;">Stream 06 · Standard</div><div style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800;text-transform:uppercase;margin-bottom:8px;">Power Supplies</div><div style="font-size:0.8rem;color:#6b7886;font-weight:300;line-height:1.6;margin-bottom:12px;">Lab adapters and voltage regulators. Transformer cores provide laminated Si-steel and Cu windings.</div><div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);"><span style="font-size:0.68rem;color:#3a4450;font-family:'JetBrains Mono',monospace;">Core</span><span style="font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;color:#ffb400;">Si-Steel / Cu</span></div></div>
+      </div>
+
+      <!-- Live Inventory Dashboard -->
+      <div style="background:#0f1318;border:1px solid rgba(255,180,0,0.3);border-radius:14px;overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(255,180,0,0.04);">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:#ffb400;letter-spacing:0.08em;text-transform:uppercase;display:flex;align-items:center;gap:10px;"><span style="width:7px;height:7px;border-radius:50%;background:#39ff78;display:inline-block;animation:pulse 2s ease-in-out infinite;"></span>Live Aggregated Inventory — Campus Node Alpha, Chandigarh</div>
+          <div style="font-size:0.72rem;color:#3a4450;font-family:'JetBrains Mono',monospace;">Updates every 48hr</div>
+        </div>
+        <div style="padding:24px;overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;min-width:500px;">
+            <thead><tr>
+              <th style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#3a4450;letter-spacing:0.08em;text-transform:uppercase;text-align:left;padding:0 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">Material</th>
+              <th style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#3a4450;letter-spacing:0.08em;text-transform:uppercase;text-align:left;padding:0 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">Weight</th>
+              <th style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#3a4450;letter-spacing:0.08em;text-transform:uppercase;text-align:left;padding:0 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">Min. Lot</th>
+              <th style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#3a4450;letter-spacing:0.08em;text-transform:uppercase;text-align:left;padding:0 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">Status</th>
+              <th style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#3a4450;letter-spacing:0.08em;text-transform:uppercase;text-align:left;padding:0 0 12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">Dispatch</th>
+            </tr></thead>
+            <tbody>
+              <tr><td style="padding:12px 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.85rem;color:#dde3ea;font-weight:500;">Grade-A PCBs</td><td style="padding:12px 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:#dde3ea;">38 KG</td><td style="padding:12px 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.82rem;color:#6b7886;">50 KG</td><td style="padding:12px 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);"><span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;padding:3px 8px;border-radius:4px;letter-spacing:0.05em;text-transform:uppercase;background:rgba(255,180,0,0.1);color:#ffb400;border:1px solid rgba(255,180,0,0.3);">Aggregating</span></td><td style="padding:12px 0 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.82rem;color:#6b7886;">~12 days</td></tr>
+              <tr><td style="padding:12px 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.85rem;color:#dde3ea;font-weight:500;">Stripped Copper</td><td style="padding:12px 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:#dde3ea;">62 KG</td><td style="padding:12px 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.82rem;color:#6b7886;">40 KG</td><td style="padding:12px 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);"><span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;padding:3px 8px;border-radius:4px;letter-spacing:0.05em;text-transform:uppercase;background:rgba(57,255,120,0.1);color:#39ff78;border:1px solid rgba(57,255,120,0.25);">Ready for Bid</span></td><td style="padding:12px 0 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.82rem;color:#6b7886;">On demand</td></tr>
+              <tr><td style="padding:12px 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.85rem;color:#dde3ea;font-weight:500;">Lithium Cells</td><td style="padding:12px 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:#dde3ea;">14 KG</td><td style="padding:12px 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.82rem;color:#6b7886;">20 KG</td><td style="padding:12px 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);"><span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;padding:3px 8px;border-radius:4px;letter-spacing:0.05em;text-transform:uppercase;background:rgba(255,180,0,0.1);color:#ffb400;border:1px solid rgba(255,180,0,0.3);">Aggregating</span></td><td style="padding:12px 0 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.82rem;color:#6b7886;">~20 days</td></tr>
+              <tr><td style="padding:12px 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.85rem;color:#dde3ea;font-weight:500;">Ferrous / Motors</td><td style="padding:12px 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:#dde3ea;">91 KG</td><td style="padding:12px 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.82rem;color:#6b7886;">50 KG</td><td style="padding:12px 16px 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);"><span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;padding:3px 8px;border-radius:4px;letter-spacing:0.05em;text-transform:uppercase;background:rgba(57,255,120,0.1);color:#39ff78;border:1px solid rgba(57,255,120,0.25);">Ready for Bid</span></td><td style="padding:12px 0 12px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.82rem;color:#6b7886;">On demand</td></tr>
+              <tr><td style="padding:12px 16px 12px 0;font-size:0.85rem;color:#dde3ea;font-weight:500;">Display Modules</td><td style="padding:12px 16px 12px 0;font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:#dde3ea;">22 KG</td><td style="padding:12px 16px 12px 0;font-size:0.82rem;color:#6b7886;">30 KG</td><td style="padding:12px 16px 12px 0;"><span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;padding:3px 8px;border-radius:4px;letter-spacing:0.05em;text-transform:uppercase;background:rgba(255,180,0,0.1);color:#ffb400;border:1px solid rgba(255,180,0,0.3);">Aggregating</span></td><td style="padding:12px 0 12px 0;font-size:0.82rem;color:#6b7886;">~8 days</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:18px 24px;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <p style="font-size:0.82rem;color:#6b7886;font-weight:300;">Verified partners get <strong style="color:#dde3ea;font-weight:500;">real-time inventory alerts</strong> and priority bid access.</p>
+          <a href="#b2b-apply-section" style="background:#ffb400;color:#07090c;border:none;border-radius:8px;padding:10px 20px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:inline-block;" onclick="document.getElementById('b2b-apply-section').scrollIntoView({behavior:'smooth'})">Apply for Access →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROCESS -->
+    <div style="margin-bottom:80px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#ffb400;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px;"><span style="width:24px;height:1px;background:#ffb400;opacity:0.6;display:inline-block;"></span>How It Works</div>
+      <h2 style="font-family:'Syne',sans-serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;text-transform:uppercase;margin-bottom:12px;">Three Steps to Your First Consignment</h2>
+      <p style="color:#6b7886;font-weight:300;font-size:0.95rem;line-height:1.75;margin-bottom:40px;max-width:560px;">No brokers. No middlemen. Direct access from verification to dispatch.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+        <div class="b2b-pcard"><div style="font-family:'Syne',sans-serif;font-size:3rem;font-weight:900;color:rgba(255,180,0,0.1);line-height:1;margin-bottom:14px;">01</div><div style="width:44px;height:44px;border-radius:10px;background:rgba(255,180,0,0.1);border:1px solid rgba(255,180,0,0.3);display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:18px;">📋</div><div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;text-transform:uppercase;color:#ffb400;margin-bottom:10px;">Get Verified</div><p style="font-size:0.85rem;color:#6b7886;font-weight:300;line-height:1.7;">Submit your SPCB authorization number and company documents. Our compliance team reviews and approves within <strong style="color:#dde3ea;font-weight:500;">48 business hours</strong>.</p></div>
+        <div class="b2b-pcard"><div style="font-family:'Syne',sans-serif;font-size:3rem;font-weight:900;color:rgba(255,180,0,0.1);line-height:1;margin-bottom:14px;">02</div><div style="width:44px;height:44px;border-radius:10px;background:rgba(255,180,0,0.1);border:1px solid rgba(255,180,0,0.3);display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:18px;">📊</div><div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;text-transform:uppercase;color:#ffb400;margin-bottom:10px;">Access Inventory</div><p style="font-size:0.85rem;color:#6b7886;font-weight:300;line-height:1.7;">Receive login credentials to our Partner Inventory Dashboard. View live batch weights, purity grades, and set <strong style="color:#dde3ea;font-weight:500;">automated dispatch alerts</strong>.</p></div>
+        <div class="b2b-pcard"><div style="font-family:'Syne',sans-serif;font-size:3rem;font-weight:900;color:rgba(255,180,0,0.1);line-height:1;margin-bottom:14px;">03</div><div style="width:44px;height:44px;border-radius:10px;background:rgba(255,180,0,0.1);border:1px solid rgba(255,180,0,0.3);display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:18px;">🚚</div><div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;text-transform:uppercase;color:#ffb400;margin-bottom:10px;">Bid & Collect</div><p style="font-size:0.85rem;color:#6b7886;font-weight:300;line-height:1.7;">Place a procurement bid, receive your <strong style="color:#dde3ea;font-weight:500;">CPCB-compliant consignment manifest</strong>, and schedule truck pickup at the campus node. One stop. Clean paperwork.</p></div>
+      </div>
+    </div>
+
+    <!-- APPLICATION FORM -->
+    <div id="b2b-apply-section">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#ffb400;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px;"><span style="width:24px;height:1px;background:#ffb400;opacity:0.6;display:inline-block;"></span>Partner Application</div>
+      <h2 style="font-family:'Syne',sans-serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;text-transform:uppercase;margin-bottom:12px;">Apply to Join the Procurement Network</h2>
+      <p style="color:#6b7886;font-weight:300;font-size:0.95rem;line-height:1.75;margin-bottom:40px;max-width:560px;">Complete the form below to begin verification. Approved partners receive inventory access within 5 working days.</p>
+
+      <div id="b2b-form-inner" style="max-width:720px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">
+          <div style="display:flex;flex-direction:column;gap:7px;"><label class="b2b-label">Company Name <span style="color:#ffb400;">*</span></label><input id="b-company" type="text" class="b2b-input" placeholder="e.g. GreenSmelter Pvt. Ltd." /></div>
+          <div style="display:flex;flex-direction:column;gap:7px;"><label class="b2b-label">Contact Person <span style="color:#ffb400;">*</span></label><input id="b-contact" type="text" class="b2b-input" placeholder="Full name & designation" /></div>
+          <div style="display:flex;flex-direction:column;gap:7px;"><label class="b2b-label">Official Email <span style="color:#ffb400;">*</span></label><input id="b-email" type="email" class="b2b-input" placeholder="procurement@company.com" /></div>
+          <div style="display:flex;flex-direction:column;gap:7px;"><label class="b2b-label">Phone / WhatsApp <span style="color:#ffb400;">*</span></label><input id="b-phone" type="tel" class="b2b-input" placeholder="+91 98765 43210" /></div>
+          <div style="display:flex;flex-direction:column;gap:7px;grid-column:1/-1;"><label class="b2b-label">SPCB / CPCB Authorization Number <span style="color:#ffb400;">*</span></label><input id="b-spcb" type="text" class="b2b-input" placeholder="e.g. PB/HWM/2023/00142" /><span style="font-size:0.7rem;color:#3a4450;margin-top:2px;">Mandatory. Applications without a valid authorization number will not be processed.</span></div>
+          <div style="display:flex;flex-direction:column;gap:7px;"><label class="b2b-label">Material of Interest <span style="color:#ffb400;">*</span></label><select id="b-material" class="b2b-input b2b-select"><option value="">Select primary material</option><option>Grade-A PCBs (Gold / Silver recovery)</option><option>Stripped Copper / Wiring</option><option>Lithium Cells / Battery Packs</option><option>Ferrous Metals / Motors</option><option>Display / Glass Modules</option><option>Mixed Electronic Scrap</option><option>All Streams (Full portfolio)</option></select></div>
+          <div style="display:flex;flex-direction:column;gap:7px;"><label class="b2b-label">Monthly Procurement Capacity</label><select id="b-capacity" class="b2b-input b2b-select"><option value="">Select range</option><option>Under 500 KG / month</option><option>500 KG – 2 MT / month</option><option>2 MT – 10 MT / month</option><option>10 MT+ / month</option></select></div>
+          <div style="display:flex;flex-direction:column;gap:7px;grid-column:1/-1;"><label class="b2b-label">Company Address / Facility Location</label><textarea id="b-address" class="b2b-input" rows="2" style="resize:vertical;" placeholder="Registered address of your processing facility"></textarea></div>
+          <div style="display:flex;flex-direction:column;gap:7px;grid-column:1/-1;"><label class="b2b-label">Additional Notes</label><textarea id="b-notes" class="b2b-input" rows="3" style="resize:vertical;" placeholder="Specific material requirements, purity thresholds, or logistics constraints"></textarea></div>
+        </div>
+
+        <div style="background:#0f1318;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:22px;margin-bottom:28px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:#ffb400;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;">Documents Required for Verification</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div style="font-size:0.8rem;color:#6b7886;font-weight:300;display:flex;gap:8px;line-height:1.5;"><span style="color:#ffb400;flex-shrink:0;">→</span>SPCB / CPCB Authorization Certificate (valid)</div>
+            <div style="font-size:0.8rem;color:#6b7886;font-weight:300;display:flex;gap:8px;line-height:1.5;"><span style="color:#ffb400;flex-shrink:0;">→</span>GST Registration Certificate</div>
+            <div style="font-size:0.8rem;color:#6b7886;font-weight:300;display:flex;gap:8px;line-height:1.5;"><span style="color:#ffb400;flex-shrink:0;">→</span>Company Incorporation / Partnership Deed</div>
+            <div style="font-size:0.8rem;color:#6b7886;font-weight:300;display:flex;gap:8px;line-height:1.5;"><span style="color:#ffb400;flex-shrink:0;">→</span>EPR Registration (if applicable)</div>
+            <div style="font-size:0.8rem;color:#6b7886;font-weight:300;display:flex;gap:8px;line-height:1.5;"><span style="color:#ffb400;flex-shrink:0;">→</span>Processing facility address proof</div>
+            <div style="font-size:0.8rem;color:#6b7886;font-weight:300;display:flex;gap:8px;line-height:1.5;"><span style="color:#ffb400;flex-shrink:0;">→</span>Authorized signatory ID proof</div>
+          </div>
+          <p style="margin-top:12px;font-size:0.72rem;color:#3a4450;font-weight:300;">Our team will request document uploads via email after initial review. Do not share documents via this form.</p>
+        </div>
+
+        <button onclick="submitB2BForm()" style="background:#ffb400;color:#07090c;border:none;border-radius:8px;padding:15px 36px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:0.02em;transition:box-shadow .2s,transform .15s;" onmouseover="this.style.boxShadow='0 0 28px rgba(255,180,0,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='none';this.style.transform='none'" id="b2b-submit-btn">Submit Partner Application →</button>
+        <p style="margin-top:12px;font-size:0.73rem;color:#3a4450;font-weight:300;">We review all applications within 48 business hours. Verified partners onboarded within 5 working days.</p>
+      </div>
+
+      <!-- SUCCESS -->
+      <div id="b2b-success" style="display:none;text-align:center;padding:60px 0;max-width:500px;">
+        <div style="width:68px;height:68px;background:rgba(255,180,0,0.1);border:1px solid rgba(255,180,0,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 22px;">✅</div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;text-transform:uppercase;color:#ffb400;margin-bottom:12px;">Application Received</h3>
+        <p style="color:#6b7886;font-weight:300;font-size:0.9rem;line-height:1.75;">Our compliance team will review your application and contact you within 48 business hours. Please keep your SPCB authorization documents ready for the next step.</p>
+        <button onclick="closeB2BPortal()" style="margin-top:28px;background:transparent;border:1px solid rgba(255,180,0,0.3);color:#ffb400;border-radius:8px;padding:12px 24px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">← Back to Homepage</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .b2b-mcard { background:#0f1318; border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:24px 20px; transition:border-color .25s,transform .2s; }
+  .b2b-mcard:hover { border-color:rgba(255,180,0,0.3); transform:translateY(-4px); }
+  .b2b-pcard { background:#0f1318; border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:28px 24px; transition:border-color .25s,transform .2s; }
+  .b2b-pcard:hover { border-color:rgba(255,180,0,0.3); transform:translateY(-4px); }
+  .b2b-label { font-size:0.78rem; font-weight:600; color:#dde3ea; letter-spacing:0.02em; }
+  .b2b-input { background:#07090c; border:1px solid rgba(255,255,255,0.07); border-radius:8px; padding:11px 14px; color:#dde3ea; font-size:0.88rem; font-family:'DM Sans',sans-serif; outline:none; transition:border-color .2s; width:100%; box-sizing:border-box; }
+  .b2b-input:focus { border-color:rgba(255,180,0,0.4); }
+  .b2b-input::placeholder { color:#3a4450; }
+  .b2b-select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7886' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; background-color:#07090c; cursor:pointer; }
+  @media (max-width:700px) {
+    #b2b-form-inner > div:first-child { grid-template-columns:1fr !important; }
+    .b2b-mcard, .b2b-pcard { grid-column: span 1; }
+  }
+</style>
+
+<script>
+  function openB2BPortal() {
+    document.getElementById('b2b-portal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    document.getElementById('b2b-portal').scrollTop = 0;
+  }
+  function closeB2BPortal() {
+    document.getElementById('b2b-portal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  function submitB2BForm() {
+    const company  = document.getElementById('b-company').value.trim();
+    const contact  = document.getElementById('b-contact').value.trim();
+    const email    = document.getElementById('b-email').value.trim();
+    const phone    = document.getElementById('b-phone').value.trim();
+    const spcb     = document.getElementById('b-spcb').value.trim();
+    const material = document.getElementById('b-material').value;
+    const capacity = document.getElementById('b-capacity').value;
+    const address  = document.getElementById('b-address').value.trim();
+    const notes    = document.getElementById('b-notes').value.trim();
+
+    if (!company || !contact || !email || !phone || !spcb || !material) {
+      alert('Please fill in all required fields marked with *'); return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      alert('Please enter a valid email address.'); return;
+    }
+
+    const bookingId = 'B2B-' + Date.now().toString(36).toUpperCase();
+    const btn = document.getElementById('b2b-submit-btn');
+    btn.disabled = true; btn.textContent = 'Submitting...';
+
+    emailjs.send('service_d3wcode', 'template_oc3uash', {
+      booking_id:    bookingId,
+      student_name:  contact,
+      college:       company,
+      location:      address || 'Not provided',
+      whatsapp:      phone,
+      student_email: email,
+      pickup_date:   'B2B Partner Application',
+      time_slot:     material,
+      items:         'SPCB Auth: ' + spcb + '\nCapacity: ' + (capacity || 'Not specified') + '\nMaterial: ' + material,
+      photo_count:   'N/A — B2B Application',
+      notes:         notes || 'None',
+      to_email:      'magnemiteindia@gmail.com'
+    }).catch(() => {});
+
+    document.getElementById('b2b-form-inner').style.display = 'none';
+    document.getElementById('b2b-success').style.display = 'block';
+    document.getElementById('b2b-apply-section').scrollIntoView({ behavior: 'smooth' });
+  }
 </script>
 </body>
 </html>
